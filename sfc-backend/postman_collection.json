@@ -1,0 +1,849 @@
+{
+  "info": {
+    "name": "SFC Backend API",
+    "description": "API collection for SFC Gym & Fitness Center backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('userId', jsonData.user_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword123\",\n  \"privacy_consent\": true,\n  \"data_processing_consent\": true,\n  \"marketing_consent\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.access_token);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-otp"]
+            }
+          }
+        },
+        {
+          "name": "Signin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.access_token);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signin"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.access_token);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "status"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\",\n  \"new_password\": \"newsecurepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"securepassword123\",\n  \"new_password\": \"newsecurepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"display_name\": \"John Doe\",\n  \"age_range\": \"30-45\",\n  \"gender\": \"male\",\n  \"height_cm\": 175,\n  \"weight_kg\": 80,\n  \"fitness_level\": \"intermediate\",\n  \"primary_goal\": \"muscle_gain\",\n  \"secondary_goals\": [\"flexibility\", \"endurance\"],\n  \"days_per_week\": 4,\n  \"minutes_per_session\": 45,\n  \"preferred_days\": [\"monday\", \"wednesday\", \"friday\", \"saturday\"],\n  \"injuries\": null,\n  \"equipment_available\": [\"dumbbells\", \"bands\"],\n  \"workout_location\": \"home\",\n  \"prefers_cardio\": false,\n  \"prefers_strength\": true,\n  \"interested_in_yoga\": true,\n  \"health_disclaimer_accepted\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/onboarding",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "onboarding"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"display_name\": \"John Updated\",\n  \"weight_kg\": 78,\n  \"fitness_level\": \"advanced\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Programs",
+      "item": [
+        {
+          "name": "List Programs",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs?goal=weight_loss&difficulty=beginner&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs"],
+              "query": [
+                {
+                  "key": "goal",
+                  "value": "weight_loss"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "beginner"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Featured Programs",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/featured",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "featured"]
+            }
+          }
+        },
+        {
+          "name": "Get Recommended Programs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/recommended",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "recommended"]
+            }
+          }
+        },
+        {
+          "name": "Get Continue Section",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/continue",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "continue"]
+            }
+          }
+        },
+        {
+          "name": "Get Program Details",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}"]
+            }
+          }
+        },
+        {
+          "name": "Enroll in Program",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "enroll"]
+            }
+          }
+        },
+        {
+          "name": "Unenroll from Program",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "enroll"]
+            }
+          }
+        },
+        {
+          "name": "Get Program Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "progress"]
+            }
+          }
+        },
+        {
+          "name": "Get Program Workouts with Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/programs/{{programId}}/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "{{programId}}", "workouts"]
+            }
+          }
+        },
+        {
+          "name": "Complete Workout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration_minutes\": 35,\n  \"rating\": 4,\n  \"difficulty_felt\": \"just_right\",\n  \"notes\": \"Great workout!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/programs/workouts/{{workoutId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "workouts", "{{workoutId}}", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Privacy",
+      "item": [
+        {
+          "name": "Get Consent Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/privacy/consent",
+              "host": ["{{baseUrl}}"],
+              "path": ["privacy", "consent"]
+            }
+          }
+        },
+        {
+          "name": "Update Consent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marketing_consent\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/privacy/consent",
+              "host": ["{{baseUrl}}"],
+              "path": ["privacy", "consent"]
+            }
+          }
+        },
+        {
+          "name": "Export User Data (GDPR)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/privacy/export",
+              "host": ["{{baseUrl}}"],
+              "path": ["privacy", "export"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account (GDPR)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirm\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/privacy/account",
+              "host": ["{{baseUrl}}"],
+              "path": ["privacy", "account"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List All Programs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs?include_unpublished=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs"],
+              "query": [
+                {
+                  "key": "include_unpublished",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Program",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('programId', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"30-Day Weight Loss Challenge\",\n  \"description\": \"A comprehensive 30-day program designed for beginners to kickstart their weight loss journey.\",\n  \"thumbnail_url\": \"https://example.com/thumbnails/weight-loss.jpg\",\n  \"goal\": \"weight_loss\",\n  \"difficulty\": \"beginner\",\n  \"equipment_needed\": [\"none\"],\n  \"duration_weeks\": 4,\n  \"days_per_week\": 5,\n  \"minutes_per_session\": 30,\n  \"is_featured\": true,\n  \"workouts\": [\n    {\n      \"week_number\": 1,\n      \"day_number\": 1,\n      \"title\": \"Day 1: Full Body Warm-Up\",\n      \"description\": \"Easy full body movements to get started\",\n      \"intensity\": \"low\",\n      \"duration_minutes\": 25,\n      \"video_url\": \"https://www.youtube.com/watch?v=example1\",\n      \"video_title\": \"Beginner Full Body Warm Up\",\n      \"calories_estimate\": 150,\n      \"is_rest_day\": false\n    },\n    {\n      \"week_number\": 1,\n      \"day_number\": 2,\n      \"title\": \"Day 2: Light Cardio\",\n      \"description\": \"Low impact cardio session\",\n      \"intensity\": \"low\",\n      \"duration_minutes\": 30,\n      \"video_url\": \"https://www.youtube.com/watch?v=example2\",\n      \"video_title\": \"Low Impact Cardio for Beginners\",\n      \"calories_estimate\": 200,\n      \"is_rest_day\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs"]
+            }
+          }
+        },
+        {
+          "name": "Get Program (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Program",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"30-Day Weight Loss Challenge - Updated\",\n  \"is_featured\": true,\n  \"order_index\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}"]
+            }
+          }
+        },
+        {
+          "name": "Publish Program",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}/publish",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}", "publish"]
+            }
+          }
+        },
+        {
+          "name": "Unpublish Program",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}/unpublish",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}", "unpublish"]
+            }
+          }
+        },
+        {
+          "name": "Delete Program",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Workout to Program",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('workoutId', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"week_number\": 1,\n  \"day_number\": 3,\n  \"title\": \"Day 3: Core Strength\",\n  \"description\": \"Focus on building core stability\",\n  \"intensity\": \"medium\",\n  \"duration_minutes\": 25,\n  \"video_url\": \"https://www.youtube.com/watch?v=example3\",\n  \"video_title\": \"Core Workout for Beginners\",\n  \"calories_estimate\": 180,\n  \"equipment_needed\": [\"none\"],\n  \"tags\": [\"core\", \"abs\", \"beginner\"],\n  \"is_rest_day\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/programs/{{programId}}/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "programs", "{{programId}}", "workouts"]
+            }
+          }
+        },
+        {
+          "name": "Get Workout (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "workouts", "{{workoutId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Workout",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Day 3: Core Strength - Updated\",\n  \"intensity\": \"high\",\n  \"duration_minutes\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "workouts", "{{workoutId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Workout",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "workouts", "{{workoutId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

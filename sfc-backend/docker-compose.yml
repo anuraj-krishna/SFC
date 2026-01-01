@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sfc
+      POSTGRES_PASSWORD: sfc
+      POSTGRES_DB: sfc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sfc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Application
+      PROJECT_NAME: sfc-backend
+      ENV: local
+      DEBUG: "true"
+      LOG_LEVEL: INFO
+      API_V1_PREFIX: /api/v1
+
+      # Database
+      DATABASE_URL: postgresql+asyncpg://sfc:sfc@db:5432/sfc
+
+      # JWT Authentication
+      SECRET_KEY: change-me-in-production-use-long-random-string
+      ACCESS_TOKEN_EXPIRE_MINUTES: 15
+      REFRESH_TOKEN_EXPIRE_DAYS: 30
+
+      # OTP Settings
+      OTP_EXPIRE_MINUTES: 10
+      OTP_MAX_ATTEMPTS: 3
+      OTP_MAX_VERIFY_ATTEMPTS: 5
+
+      # AWS SES (configure for production)
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      SES_SENDER_EMAIL: ""
+
+      # CORS
+      CORS_ORIGINS: '["http://localhost:3000"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:

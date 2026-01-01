@@ -1,0 +1,18 @@
+I want to create a backend service for a website for a GYM and fitness center.
+
+- backend should be written in FAST API
+- It should be scalable
+- Use postgresql as database
+- dockerize the codebase, so that i can just deploy it in my EC2 server
+- Whenever an API is created create a postman json colllection and update it
+
+
+Features needed:
+
+- SignIN and signUP(normal email<->password(OTP validation), google signin(OAuth))
+- First we should ask couple of question to gather user information and what he is trying to achieve with this. eg: age(we can give some options(18-29,30-45,45-65+)), intention(lose weight, muscle gain, flexibility etc..), how frequent user can do exercise, etc...(add relevent)
+- Now we got a basic picture of the user, based on this we can recommend workout videos, mostly we can give some youtube video link, in frontend we can render it in UI
+- Videos should always follow a pattern, low to high intensity and based on the user intention(wieht lose or muscle gain etcc)
+- User should only be able to go/view to the next video once he is finished with the current video
+- In the homepage we should show some predefined programs as well. programs curated for particular gain(like weight lose or flexibility or muscle gain, etcc you can add more here)
+- If the user has started any program, we should show a section for this with the current level and progress the user has reached.
