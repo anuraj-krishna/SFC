@@ -118,10 +118,14 @@ async def get_enrollment(
     user_id: str,
     program_id: str,
 ) -> ProgramEnrollment | None:
-    """Get specific enrollment."""
-    query = select(ProgramEnrollment).where(
-        ProgramEnrollment.user_id == user_id,
-        ProgramEnrollment.program_id == program_id,
+    """Get specific enrollment with program eagerly loaded."""
+    query = (
+        select(ProgramEnrollment)
+        .where(
+            ProgramEnrollment.user_id == user_id,
+            ProgramEnrollment.program_id == program_id,
+        )
+        .options(selectinload(ProgramEnrollment.program))
     )
     result = await db.execute(query)
     return result.scalar_one_or_none()

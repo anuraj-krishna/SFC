@@ -236,44 +236,63 @@ wait_for_postgres() {
     return 1
 }
 
-# Check for conflicting PostgreSQL on port 5432
-check_postgres_port_conflict() {
-    # Check if there's a non-Docker PostgreSQL on port 5432
-    local native_pg_pid=$(lsof -ti:5432 2>/dev/null | head -1)
+# Check for conflicting PostgreSQL on port 5432 and stop native PostgreSQL
+stop_native_postgres() {
+    echo -e "${BLUE}Checking for native PostgreSQL...${NC}"
     
-    if [ -n "$native_pg_pid" ]; then
-        # Check if it's a Docker process
-        local process_name=$(ps -p $native_pg_pid -o comm= 2>/dev/null)
-        if [[ "$process_name" == "postgres" ]] && ! pgrep -f "docker" | grep -q "$native_pg_pid"; then
-            echo -e "${YELLOW}⚠️  Native PostgreSQL is running on port 5432 (PID: $native_pg_pid)${NC}"
-            echo -e "${YELLOW}   This may conflict with the Docker PostgreSQL container.${NC}"
-            echo -e "${BLUE}   Stopping conflicting PostgreSQL processes on port 5432...${NC}"
-            
-            # Stop processes on port 5432 (except Docker)
-            lsof -ti:5432 | while read pid; do
-                local pname=$(ps -p $pid -o comm= 2>/dev/null)
-                if [[ "$pname" == "postgres" ]]; then
-                    echo -e "${BLUE}   Killing PostgreSQL process $pid...${NC}"
-                    kill $pid 2>/dev/null || true
-                fi
-            done
-            
-            sleep 2
-            
-            # Force kill if still running
-            if lsof -ti:5432 2>/dev/null | grep -v docker; then
-                echo -e "${YELLOW}   Force killing remaining processes...${NC}"
-                lsof -ti:5432 | xargs kill -9 2>/dev/null || true
-                sleep 1
-            fi
+    # Try to stop native PostgreSQL using various methods
+    # Try pg_ctl with common data directories
+    pg_ctl stop -D /usr/local/var/postgres 2>/dev/null && echo -e "${GREEN}Stopped PostgreSQL via pg_ctl (usr/local)${NC}" || true
+    pg_ctl stop -D /opt/homebrew/var/postgres 2>/dev/null && echo -e "${GREEN}Stopped PostgreSQL via pg_ctl (homebrew)${NC}" || true
+    pg_ctl stop -D ~/Library/Application\ Support/Postgres 2>/dev/null || true
+    
+    # Try stopping via Homebrew services
+    brew services stop postgresql 2>/dev/null && echo -e "${GREEN}Stopped PostgreSQL via brew services${NC}" || true
+    brew services stop postgresql@15 2>/dev/null || true
+    brew services stop postgresql@14 2>/dev/null || true
+    brew services stop postgresql@16 2>/dev/null || true
+    
+    # Kill any remaining native postgres processes (not Docker ones)
+    # Docker postgres processes have different parent process IDs
+    local native_pids=$(lsof -ti:5432 2>/dev/null | while read pid; do
+        local pname=$(ps -p $pid -o comm= 2>/dev/null)
+        local ppid=$(ps -p $pid -o ppid= 2>/dev/null | tr -d ' ')
+        # If it's a postgres process and parent is not Docker, kill it
+        if [[ "$pname" == "postgres" ]] && [[ "$ppid" != "1" ]]; then
+            echo "$pid"
         fi
+    done)
+    
+    if [ -n "$native_pids" ]; then
+        echo -e "${YELLOW}⚠️  Found native PostgreSQL processes. Stopping...${NC}"
+        for pid in $native_pids; do
+            echo -e "${BLUE}   Stopping process $pid...${NC}"
+            kill -15 $pid 2>/dev/null || true
+        done
+        sleep 2
+        
+        # Force kill if still running
+        for pid in $native_pids; do
+            if ps -p $pid > /dev/null 2>&1; then
+                echo -e "${YELLOW}   Force killing process $pid...${NC}"
+                kill -9 $pid 2>/dev/null || true
+            fi
+        done
+        sleep 1
+    fi
+    
+    # Final check - any non-Docker postgres on localhost:5432?
+    if lsof -i :5432 2>/dev/null | grep -v "com.docke" | grep -q "localhost"; then
+        echo -e "${YELLOW}⚠️  Still have native PostgreSQL on localhost. Force killing...${NC}"
+        pkill -9 -f "postgres.*-D" 2>/dev/null || true
+        sleep 1
     fi
 }
 
 # Check if PostgreSQL container is running
 check_postgres_container() {
-    # First, handle any port conflicts
-    check_postgres_port_conflict
+    # First, stop any native PostgreSQL that might conflict
+    stop_native_postgres
     
     if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^sfc-db$"; then
         echo -e "${GREEN}PostgreSQL container 'sfc-db' is running${NC}"
