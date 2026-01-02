@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Play,
@@ -10,13 +11,20 @@ import {
   Users,
   Trophy,
   Zap,
-  CheckCircle,
   Star,
 } from "lucide-react";
 import { Navbar, Footer } from "@/components/layout";
-import { Button, Logo } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { ProgramCard } from "@/components/programs";
 import { programsApi, type Program } from "@/lib/api";
+
+const heroImages = [
+  "/images/anastase-maragos-7kEpUPB8vNk-unsplash.jpg",
+  "/images/edgar-chaparro-sHfo3WOgGTU-unsplash.jpg",
+  "/images/spencer-davis-0ShTs8iPY28-unsplash.jpg",
+  "/images/sushil-ghimire-5UbIqV58CW8-unsplash.jpg",
+  "/images/victor-freitas-WvDYdXDzkhs-unsplash.jpg",
+];
 
 const features = [
   {
@@ -75,6 +83,7 @@ const testimonials = [
 export default function HomePage() {
   const [featuredPrograms, setFeaturedPrograms] = useState<Program[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     async function loadFeaturedPrograms() {
@@ -87,22 +96,56 @@ export default function HomePage() {
     loadFeaturedPrograms();
   }, []);
 
+  // Auto-scroll background images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentImageIndex(index);
+  }, []);
+
   return (
     <div className="min-h-screen bg-dark-950">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-mesh" />
-        <div className="absolute inset-0 noise pointer-events-none" />
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Background Image Slideshow */}
+        <div className="absolute inset-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentImageIndex}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroImages[currentImageIndex]}
+                alt="Fitness background"
+                fill
+                priority
+                className="object-cover"
+                sizes="100vw"
+              />
+              {/* Gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-dark-950/90 via-dark-950/70 to-dark-950/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-dark-950/80 via-transparent to-dark-950/30" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-        {/* Animated gradient orbs */}
+        {/* Subtle animated accent */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary-600/20 blur-3xl"
+          className="absolute top-1/3 left-0 w-[600px] h-[600px] rounded-full bg-primary-600/10 blur-[120px] pointer-events-none"
           animate={{
-            x: [0, 50, 0],
-            y: [0, 30, 0],
+            x: [0, 30, 0],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
             duration: 8,
@@ -110,145 +153,84 @@ export default function HomePage() {
             ease: "easeInOut",
           }}
         />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-accent-cyan/20 blur-3xl"
-          animate={{
-            x: [0, -30, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Hero Content */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+          {/* Hero Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-2xl"
+          >
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-6"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6"
+              <span className="w-2 h-2 rounded-full bg-accent-emerald animate-pulse" />
+              <span className="text-sm text-white/90">
+                Join 10,000+ fitness enthusiasts
+              </span>
+            </motion.div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight">
+              <span className="text-white">Transform Your</span>
+              <br />
+              <span className="bg-gradient-to-r from-primary-400 via-accent-cyan to-primary-400 bg-clip-text text-transparent">
+                Body & Mind
+              </span>
+            </h1>
+
+            <p className="mt-6 text-xl text-white/80 max-w-lg leading-relaxed">
+              Achieve your fitness goals with personalized workout programs, expert video
+              guidance, and progress tracking that keeps you motivated.
+            </p>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link href="/signup">
+                <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  Start Free Trial
+                </Button>
+              </Link>
+              <Link href="/programs">
+                <Button 
+                  variant="secondary" 
+                  size="lg" 
+                  leftIcon={<Play className="w-5 h-5" />}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                >
+                  Browse Programs
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Slide Indicators */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="absolute bottom-8 right-8 flex items-center gap-3"
+          >
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`
+                  w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold
+                  transition-all duration-300 backdrop-blur-md
+                  ${
+                    index === currentImageIndex
+                      ? "bg-white text-dark-950 scale-110"
+                      : "bg-white/20 text-white hover:bg-white/30 border border-white/20"
+                  }
+                `}
               >
-                <span className="w-2 h-2 rounded-full bg-accent-emerald animate-pulse" />
-                <span className="text-sm text-dark-300">
-                  Join 10,000+ fitness enthusiasts
-                </span>
-              </motion.div>
-
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight">
-                <span className="text-dark-100">Transform Your</span>
-                <br />
-                <span className="gradient-text">Body & Mind</span>
-              </h1>
-
-              <p className="mt-6 text-xl text-dark-300 max-w-lg">
-                Achieve your fitness goals with personalized workout programs, expert video
-                guidance, and progress tracking that keeps you motivated.
-              </p>
-
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Link href="/signup">
-                  <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
-                    Start Free Trial
-                  </Button>
-                </Link>
-                <Link href="/programs">
-                  <Button variant="secondary" size="lg" leftIcon={<Play className="w-5 h-5" />}>
-                    Browse Programs
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="mt-12 flex items-center gap-8">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-dark-950 bg-gradient-to-br from-primary-400 to-primary-600"
-                    />
-                  ))}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-accent-gold text-accent-gold"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-dark-400 mt-1">
-                    4.9/5 from 2,000+ reviews
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Hero Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative hidden lg:block"
-            >
-              <div className="relative aspect-square">
-                {/* Main card */}
-                <div className="absolute inset-8 rounded-3xl glass overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-accent-cyan/20" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Logo size="xl" showText={false} />
-                  </div>
-                </div>
-
-                {/* Floating stats cards */}
-                <motion.div
-                  className="absolute top-4 right-4 glass rounded-2xl p-4"
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-emerald/20 flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-accent-emerald" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-dark-100">156</p>
-                      <p className="text-xs text-dark-400">Workouts Done</p>
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="absolute bottom-4 left-4 glass rounded-2xl p-4"
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-gold/20 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-accent-gold" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-dark-100">21</p>
-                      <p className="text-xs text-dark-400">Day Streak</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
+                {index + 1}
+              </button>
+            ))}
+          </motion.div>
         </div>
       </section>
 
